@@ -26,6 +26,12 @@ public class Main {
                 System.out.println("Account created.");
             }
 
+            if (choice == 4) {
+                for (String name : accounts.keySet()) {
+                    System.out.printf("%s: $%.2f%n", name, accounts.get(name));
+                }
+            }
+
             if (choice == 5) {
                 System.out.println("Goodbye!");
                 running = false;
