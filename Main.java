@@ -26,6 +26,26 @@ public class Main {
                 System.out.println("Account created.");
             }
 
+            if (choice == 2) {
+                System.out.print("Account name: ");
+                String name = scanner.nextLine();
+                System.out.print("Amount: ");
+                double amount = scanner.nextDouble();
+                scanner.nextLine();
+                accounts.put(name, accounts.get(name) + amount);
+                System.out.println("Deposit done.");
+            }
+
+            if (choice == 3) {
+                System.out.print("Account name: ");
+                String name = scanner.nextLine();
+                System.out.print("Amount: ");
+                double amount = scanner.nextDouble();
+                scanner.nextLine();
+                accounts.put(name, accounts.get(name) - amount);
+                System.out.println("Withdrawal done.");
+            }
+
             if (choice == 4) {
                 for (String name : accounts.keySet()) {
                     System.out.printf("%s: $%.2f%n", name, accounts.get(name));
