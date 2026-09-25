@@ -17,6 +17,7 @@ public class Main {
             System.out.println("You picked " + choice);
 
             if (choice == 5) {
+                System.out.println("Goodbye!");
                 running = false;
             }
         }
