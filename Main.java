@@ -29,6 +29,10 @@ public class Main {
             if (choice == 2) {
                 System.out.print("Account name: ");
                 String name = scanner.nextLine();
+                if (!accounts.containsKey(name)) {
+                    System.out.println("No account named '" + name + "'.");
+                    continue;
+                }
                 System.out.print("Amount: ");
                 double amount = scanner.nextDouble();
                 scanner.nextLine();
