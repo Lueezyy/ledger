@@ -9,9 +9,18 @@ public class Ledger {
     private final Set<String> accounts = new LinkedHashSet<>();
     private final List<Transaction> transactions = new ArrayList<>();
 
+    public static final String EXTERNAL = "External";
+
+    public Ledger() {
+        accounts.add(EXTERNAL);
+    }
+
     public void createAccount(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Account name can't be empty.");
+        }
+        if (name.equalsIgnoreCase(EXTERNAL)) {
+            throw new IllegalArgumentException("'" + name + "' is a reserved account name.");
         }
         if (accounts.contains(name)) {
             throw new IllegalArgumentException("An account named '" + name + "' already exists.");
@@ -20,7 +29,7 @@ public class Ledger {
     }
 
     public boolean hasAccount(String name) {
-        return accounts.contains(name);
+        return accounts.contains(name) && !name.equals(EXTERNAL);
     }
 
     public void post(Transaction transaction) {
@@ -33,6 +42,37 @@ public class Ledger {
             }
         }
         transactions.add(transaction);
+    }
+
+    public void deposit(String name, BigDecimal amount) {
+        requireUserAccount(name);
+        requirePositive(amount);
+        post(new Transaction("Deposit to " + name, List.of(
+                new Entry(EXTERNAL, amount.negate()),
+                new Entry(name, amount))));
+    }
+
+    public void withdraw(String name, BigDecimal amount) {
+        requireUserAccount(name);
+        requirePositive(amount);
+        if (amount.compareTo(balanceOf(name)) > 0) {
+            throw new IllegalArgumentException("Insufficient funds.");
+        }
+        post(new Transaction("Withdrawal from " + name, List.of(
+                new Entry(name, amount.negate()),
+                new Entry(EXTERNAL, amount))));
+    }
+
+    private void requireUserAccount(String name) {
+        if (!hasAccount(name)) {
+            throw new IllegalArgumentException("No account named '" + name + "'.");
+        }
+    }
+
+    private void requirePositive(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero.");
+        }
     }
 
     public BigDecimal balanceOf(String name) {
@@ -52,6 +92,12 @@ public class Ledger {
 
     public Set<String> accounts() {
         return Collections.unmodifiableSet(accounts);
+    }
+
+    public Set<String> userAccounts() {
+        Set<String> result = new LinkedHashSet<>(accounts);
+        result.remove(EXTERNAL);
+        return Collections.unmodifiableSet(result);
     }
 
     public List<Transaction> transactions() {
