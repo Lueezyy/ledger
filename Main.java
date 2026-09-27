@@ -50,6 +50,10 @@ public class Main {
                 System.out.print("Amount: ");
                 double amount = scanner.nextDouble();
                 scanner.nextLine();
+                if (amount > accounts.get(name)) {
+                    System.out.printf("Insufficient funds. Balance is $%.2f.%n", accounts.get(name));
+                    continue;
+                }
                 accounts.put(name, accounts.get(name) - amount);
                 System.out.println("Withdrawal done.");
             }
