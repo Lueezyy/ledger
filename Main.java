@@ -1,26 +1,32 @@
 import java.util.HashMap;
 import java.util.Scanner;
+import java.math.BigDecimal;
 
 public class Main {
-    private static Double readAmount(Scanner scanner) {
+    private static BigDecimal readAmount(Scanner scanner) {
         System.out.print("Amount: ");
         String input = scanner.nextLine().trim();
-        double amount;
+        BigDecimal amount;
         try {
-            amount = Double.parseDouble(input);
+            amount = new BigDecimal(input);
         } catch (NumberFormatException e) {
             System.out.println("Please enter a valid amount.");
             return null;
         }
-        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+        if (amount.signum() <= 0) {
             System.out.println("Amount must be a number greater than zero.");
+            return null;
+        }
+        if (amount.stripTrailingZeros().scale() > 2) {
+            System.out.println("Amount can't have more than 2 decimal places.");
             return null;
         }
         return amount;
     }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        HashMap<String, Double> accounts = new HashMap<>();
+        HashMap<String, BigDecimal> accounts = new HashMap<>();
         boolean running = true;
 
         while (running) {
@@ -55,7 +61,7 @@ public class Main {
                     System.out.println("An account named '" + name + "' already exists.");
                     continue;
                 }
-                accounts.put(name, 0.0);
+                accounts.put(name, BigDecimal.ZERO);
                 System.out.println("Account created.");
             }
 
@@ -66,11 +72,11 @@ public class Main {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
-                Double amount = readAmount(scanner);
+                BigDecimal amount = readAmount(scanner);
                 if (amount == null) {
                     continue;
                 }
-                accounts.put(name, accounts.get(name) + amount);
+                accounts.put(name, accounts.get(name).add(amount));
                 System.out.println("Deposit done.");
             }
 
@@ -81,15 +87,15 @@ public class Main {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
-                Double amount = readAmount(scanner);
+                BigDecimal amount = readAmount(scanner);
                 if (amount == null) {
                     continue;
                 }
-                if (amount > accounts.get(name)) {
+                if (amount.compareTo(accounts.get(name)) > 0) {
                     System.out.printf("Insufficient funds. Balance is $%.2f.%n", accounts.get(name));
                     continue;
                 }
-                accounts.put(name, accounts.get(name) - amount);
+                accounts.put(name, accounts.get(name).subtract(amount));
                 System.out.println("Withdrawal done.");
             }
 
