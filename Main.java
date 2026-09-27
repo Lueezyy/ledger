@@ -2,6 +2,22 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
+    private static Double readAmount(Scanner scanner) {
+    System.out.print("Amount: ");
+    String input = scanner.nextLine().trim();
+    double amount;
+    try {
+        amount = Double.parseDouble(input);
+    } catch (NumberFormatException e) {
+        System.out.println("Please enter a valid amount.");
+        return null;
+    }
+    if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+        System.out.println("Amount must be a number greater than zero.");
+        return null;
+    }
+    return amount;
+}
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         HashMap<String, Double> accounts = new HashMap<>();
@@ -39,9 +55,10 @@ public class Main {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
-                System.out.print("Amount: ");
-                double amount = scanner.nextDouble();
-                scanner.nextLine();
+                Double amount = readAmount(scanner);
+                if (amount == null) {
+                    continue;
+                }
                 accounts.put(name, accounts.get(name) + amount);
                 System.out.println("Deposit done.");
             }
@@ -53,9 +70,10 @@ public class Main {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
-                System.out.print("Amount: ");
-                double amount = scanner.nextDouble();
-                scanner.nextLine();
+                Double amount = readAmount(scanner);
+                if (amount == null) {
+                    continue;
+                }
                 if (amount > accounts.get(name)) {
                     System.out.printf("Insufficient funds. Balance is $%.2f.%n", accounts.get(name));
                     continue;
