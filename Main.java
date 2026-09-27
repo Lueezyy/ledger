@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.Scanner;
 import java.math.BigDecimal;
 
@@ -26,7 +25,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        HashMap<String, BigDecimal> accounts = new HashMap<>();
+        Ledger ledger = new Ledger();
         boolean running = true;
 
         while (running) {
@@ -53,22 +52,18 @@ public class Main {
             if (choice == 1) {
                 System.out.print("Account name: ");
                 String name = scanner.nextLine().trim();
-                if (name.isEmpty()) {
-                    System.out.println("Account name can't be empty.");
-                    continue;
+                try {
+                    ledger.createAccount(name);
+                    System.out.println("Account created.");
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
                 }
-                if (accounts.containsKey(name)) {
-                    System.out.println("An account named '" + name + "' already exists.");
-                    continue;
-                }
-                accounts.put(name, BigDecimal.ZERO);
-                System.out.println("Account created.");
             }
 
             if (choice == 2) {
                 System.out.print("Account name: ");
                 String name = scanner.nextLine().trim();
-                if (!accounts.containsKey(name)) {
+                if (!ledger.hasAccount(name)) {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
@@ -76,14 +71,14 @@ public class Main {
                 if (amount == null) {
                     continue;
                 }
-                accounts.put(name, accounts.get(name).add(amount));
+                ledger.deposit(name, amount);
                 System.out.println("Deposit done.");
             }
 
             if (choice == 3) {
                 System.out.print("Account name: ");
                 String name = scanner.nextLine().trim();
-                if (!accounts.containsKey(name)) {
+                if (!ledger.hasAccount(name)) {
                     System.out.println("No account named '" + name + "'.");
                     continue;
                 }
@@ -91,17 +86,18 @@ public class Main {
                 if (amount == null) {
                     continue;
                 }
-                if (amount.compareTo(accounts.get(name)) > 0) {
-                    System.out.printf("Insufficient funds. Balance is $%.2f.%n", accounts.get(name));
+                BigDecimal balance = ledger.balanceOf(name);
+                if (amount.compareTo(balance) > 0) {
+                    System.out.printf("Insufficient funds. Balance is $%.2f.%n", balance);
                     continue;
                 }
-                accounts.put(name, accounts.get(name).subtract(amount));
+                ledger.withdraw(name, amount);
                 System.out.println("Withdrawal done.");
             }
 
             if (choice == 4) {
-                for (String name : accounts.keySet()) {
-                    System.out.printf("%s: $%.2f%n", name, accounts.get(name));
+                for (String name : ledger.userAccounts()) {
+                    System.out.printf("%s: $%.2f%n", name, ledger.balanceOf(name));
                 }
             }
 
