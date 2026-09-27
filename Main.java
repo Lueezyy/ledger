@@ -3,21 +3,21 @@ import java.util.Scanner;
 
 public class Main {
     private static Double readAmount(Scanner scanner) {
-    System.out.print("Amount: ");
-    String input = scanner.nextLine().trim();
-    double amount;
-    try {
-        amount = Double.parseDouble(input);
-    } catch (NumberFormatException e) {
-        System.out.println("Please enter a valid amount.");
-        return null;
+        System.out.print("Amount: ");
+        String input = scanner.nextLine().trim();
+        double amount;
+        try {
+            amount = Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid amount.");
+            return null;
+        }
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+            System.out.println("Amount must be a number greater than zero.");
+            return null;
+        }
+        return amount;
     }
-    if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
-        System.out.println("Amount must be a number greater than zero.");
-        return null;
-    }
-    return amount;
-}
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         HashMap<String, Double> accounts = new HashMap<>();
