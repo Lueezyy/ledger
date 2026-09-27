@@ -33,7 +33,8 @@ public class Main {
             System.out.println("2. Deposit");
             System.out.println("3. Withdraw");
             System.out.println("4. Show");
-            System.out.println("5. Quit");
+            System.out.println("5. History");
+            System.out.println("6. Quit");
             System.out.print("Pick an option: ");
 
             String input = scanner.nextLine().trim();
@@ -41,11 +42,11 @@ public class Main {
             try {
                 choice = Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a number from 1 to 5.");
+                System.out.println("Please enter a number from 1 to 6.");
                 continue;
             }
-            if (choice < 1 || choice > 5) {
-                System.out.println("Please enter a number from 1 to 5.");
+            if (choice < 1 || choice > 6) {
+                System.out.println("Please enter a number from 1 to 6.");
                 continue;
             }
 
@@ -102,6 +103,21 @@ public class Main {
             }
 
             if (choice == 5) {
+                if (ledger.transactions().isEmpty()) {
+                    System.out.println("No transactions yet.");
+                }
+                int number = 1;
+                for (Transaction transaction : ledger.transactions()) {
+                    System.out.printf("%d. %s%n", number, transaction.description());
+                    for (Entry entry : transaction.entries()) {
+                        System.out.printf("     %s: %+.2f%n", entry.account(), entry.amount());
+                    }
+                    number++;
+                }
+                System.out.printf("Net total of all accounts: $%.2f%n", ledger.netTotal());
+            }
+
+            if (choice == 6) {
                 System.out.println("Goodbye!");
                 running = false;
             }

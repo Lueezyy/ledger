@@ -90,6 +90,14 @@ public class Ledger {
         return balance;
     }
 
+    public BigDecimal netTotal() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (String name : accounts) {
+            total = total.add(balanceOf(name));
+        }
+        return total;
+    }
+
     public Set<String> accounts() {
         return Collections.unmodifiableSet(accounts);
     }
