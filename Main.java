@@ -39,7 +39,10 @@ public class Main {
                 System.out.println("Please enter a number from 1 to 5.");
                 continue;
             }
-            System.out.println("You picked " + choice);
+            if (choice < 1 || choice > 5) {
+                System.out.println("Please enter a number from 1 to 5.");
+                continue;
+            }
 
             if (choice == 1) {
                 System.out.print("Account name: ");
