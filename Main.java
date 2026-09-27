@@ -43,14 +43,22 @@ public class Main {
 
             if (choice == 1) {
                 System.out.print("Account name: ");
-                String name = scanner.nextLine();
+                String name = scanner.nextLine().trim();
+                if (name.isEmpty()) {
+                    System.out.println("Account name can't be empty.");
+                    continue;
+                }
+                if (accounts.containsKey(name)) {
+                    System.out.println("An account named '" + name + "' already exists.");
+                    continue;
+                }
                 accounts.put(name, 0.0);
                 System.out.println("Account created.");
             }
 
             if (choice == 2) {
                 System.out.print("Account name: ");
-                String name = scanner.nextLine();
+                String name = scanner.nextLine().trim();
                 if (!accounts.containsKey(name)) {
                     System.out.println("No account named '" + name + "'.");
                     continue;
@@ -65,7 +73,7 @@ public class Main {
 
             if (choice == 3) {
                 System.out.print("Account name: ");
-                String name = scanner.nextLine();
+                String name = scanner.nextLine().trim();
                 if (!accounts.containsKey(name)) {
                     System.out.println("No account named '" + name + "'.");
                     continue;
