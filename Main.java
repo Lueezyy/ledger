@@ -15,8 +15,14 @@ public class Main {
             System.out.println("5. Quit");
             System.out.print("Pick an option: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            String input = scanner.nextLine().trim();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number from 1 to 5.");
+                continue;
+            }
             System.out.println("You picked " + choice);
 
             if (choice == 1) {
