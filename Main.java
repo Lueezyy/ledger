@@ -1,7 +1,11 @@
+import java.util.List;
 import java.util.Scanner;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 
 public class Main {
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static BigDecimal readAmount(Scanner scanner) {
         System.out.print("Amount: ");
         String input = scanner.nextLine().trim();
@@ -34,7 +38,8 @@ public class Main {
             System.out.println("3. Withdraw");
             System.out.println("4. Show");
             System.out.println("5. History");
-            System.out.println("6. Quit");
+            System.out.println("6. View statement");
+            System.out.println("7. Quit");
             System.out.print("Pick an option: ");
 
             String input = scanner.nextLine().trim();
@@ -42,11 +47,11 @@ public class Main {
             try {
                 choice = Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a number from 1 to 6.");
+                System.out.println("Please enter a number from 1 to 7.");
                 continue;
             }
-            if (choice < 1 || choice > 6) {
-                System.out.println("Please enter a number from 1 to 6.");
+            if (choice < 1 || choice > 7) {
+                System.out.println("Please enter a number from 1 to 7.");
                 continue;
             }
 
@@ -118,6 +123,29 @@ public class Main {
             }
 
             if (choice == 6) {
+                System.out.print("Account name: ");
+                String name = scanner.nextLine().trim();
+                if (!ledger.hasAccount(name)) {
+                    System.out.println("No account named '" + name + "'.");
+                    continue;
+                }
+                List<StatementLine> lines = ledger.statementFor(name);
+                if (lines.isEmpty()) {
+                    System.out.println("No transactions yet.");
+                    continue;
+                }
+                System.out.println("Statement for " + name + ":");
+                for (StatementLine line : lines) {
+                    System.out.printf(
+                        "%s  %-28s %+10.2f  $%.2f%n",
+                        line.timestamp().format(DATE_FORMAT),
+                        line.description(), 
+                        line.amount(), 
+                        line.balance());
+                }
+            }
+
+            if (choice == 7) {
                 System.out.println("Goodbye!");
                 running = false;
             }
