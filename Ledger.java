@@ -21,6 +21,9 @@ public class Ledger {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Account name can't be empty.");
         }
+        if (name.contains(",")) {
+            throw new IllegalArgumentException("Account name can't contain commas.");
+        }
         if (name.equalsIgnoreCase(EXTERNAL)) {
             throw new IllegalArgumentException("'" + name + "' is a reserved account name.");
         }
