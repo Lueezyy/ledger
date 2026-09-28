@@ -96,6 +96,31 @@ public class Ledger {
         return balance;
     }
 
+    public List<StatementLine> statementFor(String name) {
+        requireUserAccount(name);
+        List<StatementLine> lines = new ArrayList<>();
+        BigDecimal balance = BigDecimal.ZERO;
+        for (Transaction transaction : transactions) {
+            BigDecimal change = BigDecimal.ZERO;
+            boolean touchesAccount = false;
+            for (Entry entry : transaction.entries()) {
+                if (entry.account().equals(name)) {
+                    change = change.add(entry.amount());
+                    touchesAccount = true;
+                }
+            }
+            if (touchesAccount) {
+                balance = balance.add(change);
+                lines.add(new StatementLine(
+                    transaction.timestamp(),
+                    transaction.description(), 
+                    change, 
+                    balance));
+            }
+        }
+        return Collections.unmodifiableList(lines);
+    }
+
     public BigDecimal netTotal() {
         BigDecimal total = BigDecimal.ZERO;
         for (String name : accounts) {
