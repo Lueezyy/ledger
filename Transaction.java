@@ -1,8 +1,12 @@
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
-public record Transaction(String description, List<Entry> entries) {
+public record Transaction(LocalDateTime timestamp, String description, List<Entry> entries) {
     public Transaction {
+        if (timestamp == null) {
+            throw new IllegalArgumentException("Transaction needs a timestamp.");
+        }
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Transaction needs a description.");
         }

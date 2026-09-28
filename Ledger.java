@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Ledger {
     private final Set<String> accounts = new LinkedHashSet<>();
@@ -47,7 +49,7 @@ public class Ledger {
     public void deposit(String name, BigDecimal amount) {
         requireUserAccount(name);
         requirePositive(amount);
-        post(new Transaction("Deposit to " + name, List.of(
+        post(new Transaction(now(), "Deposit to " + name, List.of(
                 new Entry(EXTERNAL, amount.negate()),
                 new Entry(name, amount))));
     }
@@ -58,7 +60,7 @@ public class Ledger {
         if (amount.compareTo(balanceOf(name)) > 0) {
             throw new IllegalArgumentException("Insufficient funds.");
         }
-        post(new Transaction("Withdrawal from " + name, List.of(
+        post(new Transaction(now(), "Withdrawal from " + name, List.of(
                 new Entry(name, amount.negate()),
                 new Entry(EXTERNAL, amount))));
     }
@@ -73,6 +75,10 @@ public class Ledger {
         if (amount == null || amount.signum() <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero.");
         }
+    }
+
+    private static LocalDateTime now() {
+        return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 
     public BigDecimal balanceOf(String name) {
