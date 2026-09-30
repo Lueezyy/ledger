@@ -2,6 +2,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Main {
     private static final DateTimeFormatter DATE_FORMAT =
@@ -29,7 +32,18 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Ledger ledger = new Ledger();
+        Path dataFile = Path.of(args.length > 0 ? args[0] : "ledger.csv");
+        Ledger ledger;
+        if (Files.exists(dataFile)) {
+            try {
+                ledger = LedgerStore.load(dataFile);
+            } catch (IOException e) {
+                System.out.println("Couldn't load " + dataFile + ": " + e.getMessage());
+                return;
+            }
+        } else {
+            ledger = new Ledger();
+        }
         boolean running = true;
 
         while (running) {
