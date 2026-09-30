@@ -3,6 +3,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 public final class LedgerStore {
     private LedgerStore() {
@@ -25,5 +28,55 @@ public final class LedgerStore {
             lines.add(String.join(",", fields));
         }
         Files.write(path, lines);
+    }
+
+    public static Ledger load(Path path) throws IOException {
+        List<String> lines = Files.readAllLines(path);
+        Ledger ledger = new Ledger();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.isBlank()) {
+                continue;
+            }
+            try {
+                parseLine(ledger, line);
+            } catch (IllegalArgumentException | DateTimeParseException e) {
+                throw new IOException("Line " + (i + 1) + " of " + path + ": " + e.getMessage(), e);
+            }
+        }
+        return ledger;
+    }
+
+    private static void parseLine(Ledger ledger, String line) {
+        String[] fields = line.split(",", -1);
+        switch (fields[0]) {
+            case "ACCOUNT" -> {
+                if (fields.length != 2) {
+                    throw new IllegalArgumentException("ACCOUNT line needs exactly one name.");
+                }
+                ledger.createAccount(fields[1]);
+            }
+            case "TXN" -> {
+                if (fields.length < 3 || (fields.length - 3) % 2 != 0) {
+                    throw new IllegalArgumentException(
+                            "TXN line needs a timestamp, a description, and account/amount pairs.");
+                }
+                LocalDateTime timestamp = LocalDateTime.parse(fields[1]);
+                List<Entry> entries = new ArrayList<>();
+                for (int j = 3; j < fields.length; j += 2) {
+                    entries.add(new Entry(fields[j], parseAmount(fields[j + 1])));
+                }
+                ledger.post(new Transaction(timestamp, fields[2], entries));
+            }
+            default -> throw new IllegalArgumentException("Unknown record type '" + fields[0] + "'.");
+        }
+    }
+
+    private static BigDecimal parseAmount(String text) {
+        try {
+            return new BigDecimal(text);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Bad amount '" + text + "'.");
+        }
     }
 }
