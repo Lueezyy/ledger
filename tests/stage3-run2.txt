@@ -1,0 +1,7 @@
+6
+apple
+6
+banana
+4
+5
+7

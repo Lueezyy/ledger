@@ -3,6 +3,7 @@
 
 # Test output files
 tests/*-out.txt
+tests/*.csv
 
 # Ledger data file
 ledger.csv
