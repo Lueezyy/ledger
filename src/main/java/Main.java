@@ -63,7 +63,8 @@ public class Main {
             System.out.println("4. Show");
             System.out.println("5. History");
             System.out.println("6. View statement");
-            System.out.println("7. Quit");
+            System.out.println("7. Transfer");
+            System.out.println("8. Quit");
             System.out.print("Pick an option: ");
 
             String input = scanner.nextLine().trim();
@@ -71,113 +72,130 @@ public class Main {
             try {
                 choice = Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a number from 1 to 7.");
+                System.out.println("Please enter a number from 1 to 8.");
                 continue;
             }
-            if (choice < 1 || choice > 7) {
-                System.out.println("Please enter a number from 1 to 7.");
+            if (choice < 1 || choice > 8) {
+                System.out.println("Please enter a number from 1 to 8.");
                 continue;
             }
 
-            if (choice == 1) {
-                System.out.print("Account name: ");
-                String name = scanner.nextLine().trim();
-                try {
-                    ledger.createAccount(name);
-                    save(ledger, dataFile);
-                    System.out.println("Account created.");
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-
-            if (choice == 2) {
-                System.out.print("Account name: ");
-                String name = scanner.nextLine().trim();
-                if (!ledger.hasAccount(name)) {
-                    System.out.println("No account named '" + name + "'.");
-                    continue;
-                }
-                BigDecimal amount = readAmount(scanner);
-                if (amount == null) {
-                    continue;
-                }
-                ledger.deposit(name, amount);
-                save(ledger, dataFile);
-                System.out.println("Deposit done.");
-            }
-
-            if (choice == 3) {
-                System.out.print("Account name: ");
-                String name = scanner.nextLine().trim();
-                if (!ledger.hasAccount(name)) {
-                    System.out.println("No account named '" + name + "'.");
-                    continue;
-                }
-                BigDecimal amount = readAmount(scanner);
-                if (amount == null) {
-                    continue;
-                }
-                BigDecimal balance = ledger.balanceOf(name);
-                if (amount.compareTo(balance) > 0) {
-                    System.out.printf("Insufficient funds. Balance is $%.2f.%n", balance);
-                    continue;
-                }
-                ledger.withdraw(name, amount);
-                save(ledger, dataFile);
-                System.out.println("Withdrawal done.");
-            }
-
-            if (choice == 4) {
-                for (String name : ledger.userAccounts()) {
-                    System.out.printf("%s: $%.2f%n", name, ledger.balanceOf(name));
-                }
-            }
-
-            if (choice == 5) {
-                if (ledger.transactions().isEmpty()) {
-                    System.out.println("No transactions yet.");
-                }
-                int number = 1;
-                for (Transaction transaction : ledger.transactions()) {
-                    System.out.printf("%d. %s%n", number, transaction.description());
-                    for (Entry entry : transaction.entries()) {
-                        System.out.printf("     %s: %+.2f%n", entry.account(), entry.amount());
+            try {
+                if (choice == 1) {
+                    System.out.print("Account name: ");
+                    String name = scanner.nextLine().trim();
+                    try {
+                        ledger.createAccount(name);
+                        save(ledger, dataFile);
+                        System.out.println("Account created.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
                     }
-                    number++;
                 }
-                System.out.printf("Net total of all accounts: $%.2f%n", ledger.netTotal());
-            }
 
-            if (choice == 6) {
-                System.out.print("Account name: ");
-                String name = scanner.nextLine().trim();
-                if (!ledger.hasAccount(name)) {
-                    System.out.println("No account named '" + name + "'.");
-                    continue;
+                if (choice == 2) {
+                    System.out.print("Account name: ");
+                    String name = scanner.nextLine().trim();
+                    if (!ledger.hasAccount(name)) {
+                        System.out.println("No account named '" + name + "'.");
+                        continue;
+                    }
+                    BigDecimal amount = readAmount(scanner);
+                    if (amount == null) {
+                        continue;
+                    }
+                    ledger.deposit(name, amount);
+                    save(ledger, dataFile);
+                    System.out.println("Deposit done.");
                 }
-                List<StatementLine> lines = ledger.statementFor(name);
-                if (lines.isEmpty()) {
-                    System.out.println("No transactions yet.");
-                    continue;
-                }
-                System.out.println("Statement for " + name + ":");
-                for (StatementLine line : lines) {
-                    System.out.printf(
-                        "%s  %-28s %+10.2f  $%.2f%n",
-                        line.timestamp().format(DATE_FORMAT),
-                        line.description(), 
-                        line.amount(), 
-                        line.balance());
-                }
-            }
 
-            if (choice == 7) {
-                System.out.println("Goodbye!");
-                running = false;
+                if (choice == 3) {
+                    System.out.print("Account name: ");
+                    String name = scanner.nextLine().trim();
+                    if (!ledger.hasAccount(name)) {
+                        System.out.println("No account named '" + name + "'.");
+                        continue;
+                    }
+                    BigDecimal amount = readAmount(scanner);
+                    if (amount == null) {
+                        continue;
+                    }
+                    BigDecimal balance = ledger.balanceOf(name);
+                    if (amount.compareTo(balance) > 0) {
+                        System.out.printf("Insufficient funds. Balance is $%.2f.%n", balance);
+                        continue;
+                    }
+                    ledger.withdraw(name, amount);
+                    save(ledger, dataFile);
+                    System.out.println("Withdrawal done.");
+                }
+
+                if (choice == 4) {
+                    for (String name : ledger.userAccounts()) {
+                        System.out.printf("%s: $%.2f%n", name, ledger.balanceOf(name));
+                    }
+                }
+
+                if (choice == 5) {
+                    if (ledger.transactions().isEmpty()) {
+                        System.out.println("No transactions yet.");
+                    }
+                    int number = 1;
+                    for (Transaction transaction : ledger.transactions()) {
+                        System.out.printf("%d. %s%n", number, transaction.description());
+                        for (Entry entry : transaction.entries()) {
+                            System.out.printf("     %s: %+.2f%n", entry.account(), entry.amount());
+                        }
+                        number++;
+                    }
+                    System.out.printf("Net total of all accounts: $%.2f%n", ledger.netTotal());
+                }
+
+                if (choice == 6) {
+                    System.out.print("Account name: ");
+                    String name = scanner.nextLine().trim();
+                    if (!ledger.hasAccount(name)) {
+                        System.out.println("No account named '" + name + "'.");
+                        continue;
+                    }
+                    List<StatementLine> lines = ledger.statementFor(name);
+                    if (lines.isEmpty()) {
+                        System.out.println("No transactions yet.");
+                        continue;
+                    }
+                    System.out.println("Statement for " + name + ":");
+                    for (StatementLine line : lines) {
+                        System.out.printf(
+                            "%s  %-28s %+10.2f  $%.2f%n",
+                            line.timestamp().format(DATE_FORMAT),
+                            line.description(), 
+                            line.amount(), 
+                            line.balance());
+                    }
+                }
+
+                if (choice == 7) {
+                    System.out.print("From account: ");
+                    String from = scanner.nextLine().trim();
+                    System.out.print("To account: ");
+                    String to = scanner.nextLine().trim();
+                    BigDecimal amount = readAmount(scanner);
+                    if (amount == null) {
+                        continue;
+                    }
+                    ledger.transfer(from, to, amount);
+                    save(ledger, dataFile);
+                    System.out.println("Transfer done.");
+                }
+
+                if (choice == 8) {
+                    System.out.println("Goodbye!");
+                    running = false;
+                }
+            } catch (LedgerException e) {
+                System.out.println(e.getMessage());
             }
         }
-
         scanner.close();
     }
 }

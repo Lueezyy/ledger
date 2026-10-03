@@ -20,7 +20,7 @@ abc
 2
 apple
 -5
-7
+8
 x
 2
 banana
@@ -38,4 +38,4 @@ banana
 apple
 1.005
 4
-7
+8
