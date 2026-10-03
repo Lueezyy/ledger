@@ -43,7 +43,7 @@ public class Ledger {
         }
         for (Entry entry : transaction.entries()) {
             if (!accounts.contains(entry.account())) {
-                throw new IllegalArgumentException("No account named '" + entry.account() + "'.");
+                throw new UnknownAccountException(entry.account());
             }
         }
         transactions.add(transaction);
@@ -61,7 +61,7 @@ public class Ledger {
         requireUserAccount(name);
         requirePositive(amount);
         if (amount.compareTo(balanceOf(name)) > 0) {
-            throw new IllegalArgumentException("Insufficient funds.");
+            throw new InsufficientFundsException("Insufficient funds.");
         }
         post(new Transaction(now(), "Withdrawal from " + name, List.of(
                 new Entry(name, amount.negate()),
@@ -70,13 +70,13 @@ public class Ledger {
 
     private void requireUserAccount(String name) {
         if (!hasAccount(name)) {
-            throw new IllegalArgumentException("No account named '" + name + "'.");
+            throw new UnknownAccountException(name);
         }
     }
 
     private void requirePositive(BigDecimal amount) {
         if (amount == null || amount.signum() <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than zero.");
+            throw new InvalidAmountException("Amount must be greater than zero.");
         }
     }
 
@@ -86,7 +86,7 @@ public class Ledger {
 
     public BigDecimal balanceOf(String name) {
         if (!accounts.contains(name)) {
-            throw new IllegalArgumentException("No account named '" + name + "'.");
+            throw new UnknownAccountException(name);
         }
         BigDecimal balance = BigDecimal.ZERO;
         for (Transaction transaction : transactions) {

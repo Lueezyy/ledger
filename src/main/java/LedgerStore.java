@@ -60,7 +60,7 @@ public final class LedgerStore {
             }
             try {
                 parseLine(ledger, line);
-            } catch (IllegalArgumentException | DateTimeParseException e) {
+            } catch (IllegalArgumentException | LedgerException | DateTimeParseException e) {
                 throw new IOException("Line " + (i + 1) + " of " + path + ": " + e.getMessage(), e);
             }
         }
