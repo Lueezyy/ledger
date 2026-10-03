@@ -10,3 +10,6 @@ ledger.csv
 
 # Temporary files
 *.tmp
+
+# Maven output
+target/
