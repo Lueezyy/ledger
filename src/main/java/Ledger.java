@@ -68,6 +68,21 @@ public class Ledger {
                 new Entry(EXTERNAL, amount))));
     }
 
+    public void transfer(String from, String to, BigDecimal amount) {
+        requireUserAccount(from);
+        requireUserAccount(to);
+        if (from.equals(to)) {
+            throw new SelfTransferException(from);
+        }
+        requirePositive(amount);
+        if (amount.compareTo(balanceOf(from)) > 0) {
+            throw new InsufficientFundsException("Insufficient funds.");
+        }
+        post(new Transaction(now(), "Transfer from " + from + " to " + to, List.of(
+            new Entry(from, amount.negate()),
+            new Entry(to, amount))));
+    }
+
     private void requireUserAccount(String name) {
         if (!hasAccount(name)) {
             throw new UnknownAccountException(name);
