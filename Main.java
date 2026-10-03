@@ -48,6 +48,7 @@ public class Main {
                 ledger = LedgerStore.load(dataFile);
             } catch (IOException e) {
                 System.out.println("Couldn't load " + dataFile + ": " + e.getMessage());
+                System.out.println("Fix or move that file, then run again. Nothing was changed.");
                 return;
             }
         } else {

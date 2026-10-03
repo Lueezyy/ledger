@@ -29,16 +29,29 @@ public final class LedgerStore {
             lines.add(String.join(",", fields));
         }
         Path temp = path.resolveSibling(path.getFileName() + ".tmp");
-        Files.write(temp, lines);
-        Files.move(
-            temp,
-            path,
-            StandardCopyOption.REPLACE_EXISTING,
-            StandardCopyOption.ATOMIC_MOVE);
+        try {
+            Files.write(temp, lines);
+            Files.move(
+                temp, 
+                path,
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            try {
+                Files.deleteIfExists(temp);
+            } catch (IOException ignored) {
+            }
+            throw new IOException(describe(e), e);
+        }
     }
 
     public static Ledger load(Path path) throws IOException {
-        List<String> lines = Files.readAllLines(path);
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(path);
+        } catch (IOException e) {
+            throw new IOException(describe(e), e);
+        }
         Ledger ledger = new Ledger();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -85,5 +98,10 @@ public final class LedgerStore {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Bad amount '" + text + "'.");
         }
+    }
+
+    private static String describe(IOException e) {
+        String type = e.getClass().getSimpleName();
+        return e.getMessage() == null ? type : type + ": " + e.getMessage();
     }
 }
