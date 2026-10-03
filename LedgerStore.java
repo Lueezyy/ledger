@@ -1,11 +1,12 @@
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 
 public final class LedgerStore {
     private LedgerStore() {
@@ -27,7 +28,13 @@ public final class LedgerStore {
             }
             lines.add(String.join(",", fields));
         }
-        Files.write(path, lines);
+        Path temp = path.resolveSibling(path.getFileName() + ".tmp");
+        Files.write(temp, lines);
+        Files.move(
+            temp,
+            path,
+            StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.ATOMIC_MOVE);
     }
 
     public static Ledger load(Path path) throws IOException {

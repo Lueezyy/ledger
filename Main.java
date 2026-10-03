@@ -9,6 +9,7 @@ import java.nio.file.Path;
 public class Main {
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     private static BigDecimal readAmount(Scanner scanner) {
         System.out.print("Amount: ");
         String input = scanner.nextLine().trim();
@@ -28,6 +29,14 @@ public class Main {
             return null;
         }
         return amount;
+    }
+
+    private static void save(Ledger ledger, Path dataFile) {
+        try {
+            LedgerStore.save(ledger, dataFile);
+        } catch (IOException e) {
+            System.out.println("Warning: couldn't save to " + dataFile + ": " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
@@ -74,6 +83,7 @@ public class Main {
                 String name = scanner.nextLine().trim();
                 try {
                     ledger.createAccount(name);
+                    save(ledger, dataFile);
                     System.out.println("Account created.");
                 } catch (IllegalArgumentException e) {
                     System.out.println(e.getMessage());
@@ -92,6 +102,7 @@ public class Main {
                     continue;
                 }
                 ledger.deposit(name, amount);
+                save(ledger, dataFile);
                 System.out.println("Deposit done.");
             }
 
@@ -112,6 +123,7 @@ public class Main {
                     continue;
                 }
                 ledger.withdraw(name, amount);
+                save(ledger, dataFile);
                 System.out.println("Withdrawal done.");
             }
 
