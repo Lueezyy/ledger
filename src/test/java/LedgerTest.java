@@ -1,3 +1,4 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,5 +76,48 @@ class LedgerTest {
         assertThrows(
             UnknownAccountException.class,
             () -> ledger.balanceOf("unknown"));
+    }
+
+    @Test
+    void transferToSameAccount_throwsSelfTransfer() {
+        assertThrows(
+            SelfTransferException.class,
+            () -> ledger.transfer("apple", "apple", new BigDecimal("10")));
+    }
+
+    @Test
+    void transferUnknownToItself_throwsUnknownAccountFirst() {
+        assertThrows(
+            UnknownAccountException.class,
+            () -> ledger.transfer("unknown", "unknown", new BigDecimal("10")));
+    }
+
+    @Test
+    void validTransfer_movesTheRightAmounts() {
+        ledger.createAccount("banana");
+        ledger.transfer("apple", "banana", new BigDecimal("30"));
+        assertAmount("70", ledger.balanceOf("apple"));
+        assertAmount("30", ledger.balanceOf("banana"));
+    }
+
+    @Test
+    void netTotal_staysZeroAfterEveryOperation() {
+        assertAmount("0", ledger.netTotal());
+
+        ledger.createAccount("banana");
+        assertAmount("0", ledger.netTotal());
+
+        ledger.deposit("banana", new BigDecimal("50.25"));
+        assertAmount("0", ledger.netTotal());
+
+        ledger.withdraw("apple", new BigDecimal("20"));
+        assertAmount("0", ledger.netTotal());
+
+        ledger.transfer("apple", "banana", new BigDecimal("30"));
+        assertAmount("0", ledger.netTotal());
+    }
+
+    private static void assertAmount(String expected, BigDecimal actual) {
+        assertEquals(0, new BigDecimal(expected).compareTo(actual));
     }
 }
