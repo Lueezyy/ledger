@@ -3,6 +3,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 class LedgerTest {
     private Ledger ledger;
@@ -120,4 +123,55 @@ class LedgerTest {
     private static void assertAmount(String expected, BigDecimal actual) {
         assertEquals(0, new BigDecimal(expected).compareTo(actual));
     }
+
+    @Test
+    void rejectedOperations_changeNothing() {
+        ledger.createAccount("banana");
+        ledger.deposit("banana", new BigDecimal("40"));
+
+        assertRejectedChangesNothing(
+            InsufficientFundsException.class,
+            () -> ledger.withdraw("apple", new BigDecimal("100.01")));
+        assertRejectedChangesNothing(
+            InvalidAmountException.class,
+            () -> ledger.deposit("apple", BigDecimal.ZERO));
+        assertRejectedChangesNothing(
+            InvalidAmountException.class,
+            () -> ledger.withdraw("apple", new BigDecimal("-5")));
+        assertRejectedChangesNothing(
+            UnknownAccountException.class,
+            () -> ledger.deposit("ghost", new BigDecimal("10")));
+        assertRejectedChangesNothing
+        (SelfTransferException.class,
+            () -> ledger.transfer("apple", "apple", new BigDecimal("10")));
+        assertRejectedChangesNothing(
+            InsufficientFundsException.class,
+            () -> ledger.transfer("banana", "apple", new BigDecimal("40.01")));
+        assertRejectedChangesNothing(
+            UnknownAccountException.class,
+            () -> ledger.transfer("apple", "unknown", new BigDecimal("10")));
+        assertRejectedChangesNothing(
+            InvalidAmountException.class,
+            () -> ledger.transfer("apple", "banana", new BigDecimal("-1")));
+    }
+
+    private void assertRejectedChangesNothing(
+        Class<? extends Throwable> expected, Executable action) {
+        Map<String, BigDecimal> balancesBefore = balances();
+        int countBefore = ledger.transactions().size();
+
+        assertThrows(expected, action);
+
+        assertEquals(balancesBefore, balances());
+        assertEquals(countBefore, ledger.transactions().size());
+    }
+
+    private Map<String, BigDecimal> balances() {
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        for (String name : ledger.accounts()) {
+            result.put(name, ledger.balanceOf(name));
+        }
+        return result;
+    }
+
 }
