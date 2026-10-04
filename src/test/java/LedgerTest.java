@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 class LedgerTest {
@@ -174,4 +175,20 @@ class LedgerTest {
         return result;
     }
 
+    @Test
+    void statement_showsEachChangeWithRunningBalance() {
+        ledger.createAccount("banana");
+        ledger.withdraw("apple", new BigDecimal("30"));
+        ledger.transfer("apple", "banana", new BigDecimal("20"));
+
+        List<StatementLine> lines = ledger.statementFor("apple");
+
+        assertEquals(3, lines.size());
+        assertAmount("100", lines.get(0).amount());
+        assertAmount("100", lines.get(0).balance());
+        assertAmount("-30", lines.get(1).amount());
+        assertAmount("70", lines.get(1).balance());
+        assertAmount("-20", lines.get(2).amount());
+        assertAmount("50", lines.get(2).balance());
+    }
 }

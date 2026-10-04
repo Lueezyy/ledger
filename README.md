@@ -28,6 +28,7 @@ and then replace the real file in one step.
 - Create an account
 - Deposit money
 - Withdraw money
+- Transfer money between accounts
 - Show all balances
 - Show transaction history, with a check that all balances net to zero
 - View an account's statement with dates and a running balance
@@ -38,22 +39,33 @@ and then replace the real file in one step.
 - Account names can't be empty or duplicate an existing account. Leading and 
 trailing spaces are ignored.
 - `External` is a reserved name and can't be used for an account.
-- Deposits and withdrawals must be positive numbers with at most 2 decimal places.
-- Withdrawals can't exceed the account balance.
-- Invalid input shows an error message and returns to the menu instead of crashing.
+- Deposits, withdrawals, and transfers must be positive numbers with at most 2 
+decimal places.
+- Withdrawals and transfers can't exceed the account balance.
+- You can't transfer money from an account to itself.
+- Every rule violation has its own `LedgerException` subtype, rejected 
+operations make no changes to balances or transactions.
 
 ## How to run
 
 ```
-javac *.java
-java Main
+mvn compile
+java -cp target\classes Main
 ```
 
 Data is saved to `ledger.csv` in the current folder. To use a different file, 
 pass its path: 
 
 ```
-java Main data.csv
+java -cp target\classes Main data.csv
 ```
 
-Then pick an option from the menu by typing its number (1–7).
+Then pick an option from the menu by typing its number (1–8).
+
+## How to test
+
+```
+mvn test
+```
+
+This compiles the code and runs all JUnit tests.
